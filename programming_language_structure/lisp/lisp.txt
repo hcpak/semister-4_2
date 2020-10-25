@@ -1,0 +1,67 @@
+과제 1:
+(defun JsonStructure (jsob)
+   (cond
+      ((= (length jsob) 0) nil)
+      ((string= (subseq jsob 0 1) "}") (cons "}" (JsonStructure (subseq jsob 1 (length jsob))) ))
+      ((string= (subseq jsob 0 1) "{") (cons "{" (JsonStructure (subseq jsob 1 (length jsob))) ))
+      ((string= (subseq jsob 0 1) "[") (cons "[" (arrayStructure (subseq jsob 1 (length jsob)) 1 0) ))
+      (T (JsonStructure (subseq jsob 1 (length jsob))) )
+   )   
+
+)
+
+(defun arrayStructure (array arraycount objectcount)
+   (cond
+      ((= (length array) 0) nil)
+      ((string= (subseq array 0 1) "{") (cons "{" (DistingElement (subseq array 1 (length array)) arraycount (+ objectcount 1)) ))
+      ((string= (subseq array 0 1) ",") (cons "," (arrayStructure (subseq array 1 (length array)) arraycount objectcount) ))
+      ((string= (subseq array 0 1) "]") (cons "]" (if (= arraycount 1) (JsonStructure (subseq array 1 (length array)))  (DistingElement (subseq array 1 (length array)) (- arraycount 1) objectcount)  )))
+      (T (arrayStructure (subseq array 1 (length array)) arraycount objectcount) )
+   )
+)
+
+(defun DistingElement (array arraycount objectcount)
+   (cond
+    ((= (length array) 0) nil)
+    ((string= (subseq array 0 1) "}") (cons "}" (arrayStructure (subseq array 1 (length array)) arraycount (- objectcount 1))))
+    ((string= (subseq array 0 1) "[") (cons "[" (arrayStructure (subseq array 1 (length array) ) (+ arraycount 1) objectcount )))
+    (T (DistingElement (subseq array 1 (length array)) arraycount objectcount) )
+   )
+)
+
+과제 2:
+
+(defun JsonData (json target)
+   (subseq json (getkey json target 0) (getvalue (subseq json (getkey json target 0) ) (getkey json target 0) ))
+   ;(getkey json target 0)
+)
+
+(defun getkey (json target count)
+   (cond
+      (
+         (string= (subseq json 0 1) target)
+         (+ count 3)
+      )
+      (
+         T
+         (getkey (subseq json 1 (length json)) target (+ count 1))
+      )
+   )
+)
+
+(defun getvalue (json count)
+   (cond 
+      (
+         (string= (subseq json 0 1) ",")
+         count
+      )
+      (
+         (string= (subseq json 0 1) "}")
+         count
+      )
+      (
+         T
+         (getvalue (subseq json 1 (length json))  (+ count 1) )
+      )
+   )
+)
